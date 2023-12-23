@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  todo-app-pg-hw2:
+    image: postgres:latest
+    container_name: todo-app-pg-hw2
+    networks:
+      todo-app-net-hw2:
+        aliases:
+          - net-postgres
+    volumes:
+      - todo-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: todos
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  todo-app-hw2:
+    image: node:18-alpine
+    container_name: todo-app-hw2
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    networks:
+      - todo-app-net-hw2
+    environment:
+      PGHOST: net-postgres
+      PGUSER: postgres
+      PGDATABASE: todos
+    command: sh -c "yarn install && yarn run dev"
+
+networks:
+  todo-app-net-hw2:
+    driver: bridge
+
+volumes:
+  todo-postgres-data:
